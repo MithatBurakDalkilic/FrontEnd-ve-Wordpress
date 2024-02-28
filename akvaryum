@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <title>Balık Tankı Simülasyonu</title>
+
+  <style>
+    body {
+      background-image: url('akvaryum.jpg');
+    }
+  </style>
+</head>
+<body>
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="#">Balık Tankı</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav">
+          <li class="nav-item">
+            <a class="nav-link" href="#">Menü Başlık 1</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#">Menü Başlık 2</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#">Menü Başlık 3</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <canvas id="fishTank" style="position: absolute; top: 0; left: 0;"></canvas>
+  <button id="button" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);">Balıkları Çağır</button>
+
+  <script>
+    const canvas = document.getElementById("fishTank");
+    const ctx = canvas.getContext("2d");
+    const button = document.getElementById("button");
+
+    const tankWidth = window.innerWidth;
+    const tankHeight = window.innerHeight;
+    const fishCount = 20; // Balık sayısını artırabilirsiniz
+    const fishSize = 50;
+    const fishSpeed = 2;
+
+    const fishes = Array.from({ length: fishCount }, createFish);
+
+    function createFish() {
+      const fishImages = ['balik.png', 'balik1.png', 'balik2.png', 'balik3.png', 'balik4.png', 'balik5.png', 'balik6.png', 'balik7.png'];
+      const randomImage = fishImages[Math.floor(Math.random() * fishImages.length)];
+
+      const fish = {
+        x: Math.random() * tankWidth,
+        y: Math.random() * tankHeight,
+        speed: fishSpeed,
+        direction: Math.random() * Math.PI * 2,
+        targetX: Math.random() * tankWidth,
+        targetY: Math.random() * tankHeight,
+        image: new Image(),
+      };
+
+      fish.image.onload = () => {
+        drawFish(fish);
+      };
+
+      fish.image.src = randomImage;
+      return fish;
+    }
+
+    function drawFish(fish) {
+      ctx.drawImage(fish.image, fish.x, fish.y, fishSize, fishSize);
+    }
+
+    function updateFish(fish) {
+      const angle = Math.atan2(fish.targetY - fish.y, fish.targetX - fish.x);
+      fish.x += Math.cos(angle) * fish.speed;
+      fish.y += Math.sin(angle) * fish.speed;
+
+      if (Math.abs(fish.x - fish.targetX) < fish.speed && Math.abs(fish.y - fish.targetY) < fish.speed) {
+        fish.targetX = Math.random() * tankWidth;
+        fish.targetY = Math.random() * tankHeight;
+      }
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, tankWidth, tankHeight);
+      fishes.forEach(drawFish);
+    }
+
+    function update() {
+      fishes.forEach(updateFish);
+      draw();
+      requestAnimationFrame(update);
+    }
+
+    function handleButtonClick() {
+      const targetX = Math.random() * tankWidth;
+      const targetY = Math.random() * tankHeight;
+
+      fishes.forEach(fish => {
+        fish.targetX = targetX;
+        fish.targetY = targetY;
+      });
+    }
+
+    canvas.width = tankWidth;
+    canvas.height = tankHeight;
+
+    draw();
+
+    button.addEventListener("click", handleButtonClick);
+
+    update();
+  </script>
+</body>
+</html>
